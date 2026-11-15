@@ -1,0 +1,110 @@
+<div class="modal-backdrop" (click)="close.emit()">
+  <div class="modal-card animate-pop" (click)="$event.stopPropagation()">
+    
+    <div class="modal-header">
+      <div class="title-row">
+        <span class="material-symbols-rounded header-icon">settings</span>
+        <h2 class="modal-title">Settings & Platforms</h2>
+      </div>
+      <button class="close-btn" (click)="close.emit()" type="button" aria-label="Close">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      
+      <!-- Section 1: Backend Connection -->
+      <section class="settings-section">
+        <h3 class="section-title">
+          <span class="material-symbols-rounded">dns</span>
+          Backend API Endpoint
+        </h3>
+        <p class="section-desc">
+          Configure the FastAPI backend server URL reachable by this Android app.
+        </p>
+
+        <div class="url-input-box">
+          <input
+            type="text"
+            class="backend-url-field"
+            [(ngModel)]="backendUrlInput"
+            placeholder="http://10.0.2.2:8000"
+          />
+        </div>
+
+        <div class="presets-row">
+          <span class="presets-label">Quick Presets:</span>
+          <button class="preset-btn" (click)="setPreset('http://10.0.2.2:8000')" type="button">
+            Android Emulator (10.0.2.2:8000)
+          </button>
+          <button class="preset-btn" (click)="setPreset('http://localhost:8000')" type="button">
+            Browser (localhost:8000)
+          </button>
+        </div>
+
+        <div class="test-row">
+          <button class="save-test-btn" (click)="testAndSave()" [disabled]="isTesting" type="button">
+            <span *ngIf="!isTesting" class="material-symbols-rounded">network_check</span>
+            <span *ngIf="isTesting" class="spinner-small"></span>
+            <span>{{ isTesting ? 'Testing Connection...' : 'Save & Test Connection' }}</span>
+          </button>
+        </div>
+
+        <div *ngIf="testResult" class="test-feedback" [class.success]="testResult.success" [class.error]="!testResult.success">
+          <span class="material-symbols-rounded">
+            {{ testResult.success ? 'check_circle' : 'error' }}
+          </span>
+          <span>{{ testResult.message }}</span>
+        </div>
+      </section>
+
+      <!-- Section 2: Privacy Policy & Data Minimization -->
+      <section class="settings-section">
+        <h3 class="section-title">
+          <span class="material-symbols-rounded">lock</span>
+          Privacy & Data Handling
+        </h3>
+        <div class="privacy-card">
+          <ul class="privacy-list">
+            <li>
+              <strong>Data Sent to Backend:</strong> Only the public URL you request is transmitted to resolve preview metadata and stream downloads.
+            </li>
+            <li>
+              <strong>No Account / Login Scraping:</strong> MediaVault does not ask for or collect social media account passwords or session cookies.
+            </li>
+            <li>
+              <strong>Local Storage:</strong> Downloaded media is stored directly on your device in <code>Documents/MediaVault/Images</code> and <code>Documents/MediaVault/Videos</code>.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Section 3: Supported Platforms & Rules -->
+      <section class="settings-section" *ngIf="platforms.length > 0">
+        <h3 class="section-title">
+          <span class="material-symbols-rounded">policy</span>
+          Platform Compliance Rules
+        </h3>
+        <div class="platforms-list">
+          <div *ngFor="let p of platforms" class="platform-item">
+            <div class="platform-item-header">
+              <span class="badge" [ngClass]="'badge-' + p.id">{{ p.name }}</span>
+              <span class="auth-status" [class.configured]="p.auth_configured">
+                {{ p.auth_configured ? 'API Key Configured' : 'oEmbed / Demo Only' }}
+              </span>
+            </div>
+            <p class="platform-policy">{{ p.policy }}</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="done-btn" (click)="close.emit()" type="button">
+        Done
+      </button>
+    </div>
+
+  </div>
+</div>

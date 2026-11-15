@@ -1,0 +1,70 @@
+<div class="sheet-backdrop" (click)="close.emit()">
+  <div class="sheet-card animate-slide-up" (click)="$event.stopPropagation()">
+    
+    <div class="sheet-header">
+      <div class="header-title-group">
+        <span class="material-symbols-rounded folder-icon">folder_special</span>
+        <div>
+          <h2 class="sheet-title">MediaVault Storage</h2>
+          <span class="sheet-subtitle">Documents/MediaVault/ (Images & Videos)</span>
+        </div>
+      </div>
+      <button class="close-btn" (click)="close.emit()" type="button" aria-label="Close">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="filter-tabs">
+      <button class="tab-btn" [class.active]="filterSubfolder === 'all'" (click)="setFilter('all')" type="button">
+        All Files ({{ storageService.savedFiles().length }})
+      </button>
+      <button class="tab-btn" [class.active]="filterSubfolder === 'Images'" (click)="setFilter('Images')" type="button">
+        <span class="material-symbols-rounded tab-icon">image</span>
+        Images
+      </button>
+      <button class="tab-btn" [class.active]="filterSubfolder === 'Videos'" (click)="setFilter('Videos')" type="button">
+        <span class="material-symbols-rounded tab-icon">movie</span>
+        Videos
+      </button>
+    </div>
+
+    <!-- Files list -->
+    <div class="file-list">
+      <div *ngIf="filteredFiles.length === 0" class="empty-state">
+        <span class="material-symbols-rounded empty-icon">folder_off</span>
+        <p class="empty-title">No files saved yet</p>
+        <p class="empty-sub">Files you download will be stored in MediaVault/Images and MediaVault/Videos</p>
+      </div>
+
+      <div *ngFor="let file of filteredFiles" class="file-card">
+        <div class="file-type-badge" [class.video]="file.subfolder === 'Videos'">
+          <span class="material-symbols-rounded">
+            {{ file.subfolder === 'Videos' ? 'movie' : 'image' }}
+          </span>
+        </div>
+
+        <div class="file-details">
+          <span class="filename" [title]="file.filename">{{ file.filename }}</span>
+          <div class="file-submeta">
+            <span class="folder-tag">{{ file.subfolder }}</span>
+            <span class="date-text">{{ formatDate(file.timestamp) }}</span>
+            <span class="size-text" *ngIf="file.size_bytes">• {{ formatSize(file.size_bytes) }}</span>
+          </div>
+        </div>
+
+        <button class="share-btn" (click)="share(file)" type="button" title="Open / Share file">
+          <span class="material-symbols-rounded">share</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="sheet-footer" *ngIf="storageService.savedFiles().length > 0">
+      <button class="clear-history-btn" (click)="clearAll()" type="button">
+        <span class="material-symbols-rounded">delete_sweep</span>
+        <span>Clear History List</span>
+      </button>
+    </div>
+
+  </div>
+</div>

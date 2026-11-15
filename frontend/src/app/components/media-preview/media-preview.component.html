@@ -1,0 +1,241 @@
+<div class="preview-card animate-fade">
+  <!-- Post Author & Platform Info Header -->
+  <div class="author-header">
+    <div class="author-info">
+      <img
+        *ngIf="preview.platform_info.author_avatar"
+        [src]="preview.platform_info.author_avatar"
+        alt="Avatar"
+        class="author-avatar"
+      />
+      <div *ngIf="!preview.platform_info.author_avatar" class="author-avatar placeholder">
+        <span class="material-symbols-rounded">person</span>
+      </div>
+
+      <div class="author-meta">
+        <div class="author-title-row">
+          <span class="author-name">{{ preview.platform_info.author || 'Public Creator' }}</span>
+          <span class="author-handle" *ngIf="preview.platform_info.author_handle">{{ preview.platform_info.author_handle }}</span>
+        </div>
+        <div class="platform-row">
+          <span class="badge" [ngClass]="'badge-' + preview.platform">
+            {{ preview.platform_info.platform_name }}
+          </span>
+          <span class="media-type-tag">
+            <span class="material-symbols-rounded tag-icon">
+              {{ isVideo ? 'movie' : (isCarousel ? 'photo_library' : 'image') }}
+            </span>
+            {{ preview.media_type | uppercase }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <a
+      [href]="preview.platform_info.source_url"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="source-link"
+      title="Open Original Post in Browser"
+    >
+      <span class="material-symbols-rounded">open_in_new</span>
+    </a>
+  </div>
+
+  <!-- Caption if present -->
+  <div class="caption-box" *ngIf="preview.platform_info.title_or_caption">
+    <p class="caption-text">{{ preview.platform_info.title_or_caption }}</p>
+  </div>
+
+  <!-- Platform Limitation Notice State -->
+  <div *ngIf="preview.status === 'limitation'" class="limitation-banner">
+    <div class="banner-top">
+      <span class="material-symbols-rounded shield-icon">verified_user</span>
+      <h3 class="limitation-title">Platform Access & Authorization Rule</h3>
+    </div>
+    <p class="limitation-desc">{{ preview.message }}</p>
+    <div class="limitation-box" *ngIf="preview.limitation_details">
+      <span class="material-symbols-rounded info-icon">info</span>
+      <p class="detail-text">{{ preview.limitation_details }}</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="preview.status === 'error'" class="error-banner">
+    <div class="banner-top">
+      <span class="material-symbols-rounded error-icon">error_outline</span>
+      <h3 class="error-title">Unable to Retrieve Media</h3>
+    </div>
+    <p class="error-desc">{{ preview.message }}</p>
+    <p class="detail-text" *ngIf="preview.limitation_details">{{ preview.limitation_details }}</p>
+  </div>
+
+  <!-- SUCCESS PREVIEWS -->
+  <div *ngIf="preview.status === 'success' && preview.items.length > 0">
+
+    <!-- 1. SINGLE IMAGE PREVIEW -->
+    <div *ngIf="isSingleImage" class="single-image-section">
+      <div class="media-frame">
+        <img
+          [src]="preview.items[0].media_url"
+          [alt]="preview.items[0].filename"
+          class="preview-img"
+          loading="lazy"
+        />
+        <div class="frame-overlay" *ngIf="preview.items[0].width">
+          <span class="resolution-badge">{{ preview.items[0].width }} × {{ preview.items[0].height }}</span>
+          <span class="size-badge" *ngIf="preview.items[0].file_size_estimate_bytes">
+            {{ formatBytes(preview.items[0].file_size_estimate_bytes) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="download-bar">
+        <button
+          class="download-action-btn primary"
+          (click)="triggerSingleDownload(preview.items[0])"
+          type="button"
+        >
+          <span class="material-symbols-rounded">download</span>
+          <span>Download Image</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. MULTI-IMAGE CAROUSEL PREVIEW -->
+    <div *ngIf="isCarousel" class="carousel-section">
+      <div class="carousel-toolbar">
+        <div class="selection-count">
+          <span class="material-symbols-rounded count-icon">photo_library</span>
+          <span class="count-text">
+            <strong>{{ selectedItems.length }}</strong> of {{ preview.items.length }} photos selected
+          </span>
+        </div>
+
+        <div class="toolbar-buttons">
+          <button class="tool-btn" (click)="selectAll()" [disabled]="allSelected" type="button">
+            Select All
+          </button>
+          <button class="tool-btn" (click)="deselectAll()" [disabled]="noneSelected" type="button">
+            Deselect All
+          </button>
+        </div>
+      </div>
+
+      <!-- Selectable Grid -->
+      <div class="media-grid">
+        <div
+          *ngFor="let item of preview.items; let idx = index"
+          class="grid-item"
+          [class.selected]="item.selected"
+          (click)="toggleItem(item)"
+        >
+          <img [src]="item.thumbnail_url" [alt]="item.filename" class="grid-thumb" loading="lazy" />
+          
+          <div class="check-overlay" [class.checked]="item.selected">
+            <span class="material-symbols-rounded check-icon">
+              {{ item.selected ? 'check_circle' : 'radio_button_unchecked' }}
+            </span>
+          </div>
+
+          <div class="item-index-badge">#{{ idx + 1 }}</div>
+        </div>
+      </div>
+
+      <div class="download-bar">
+        <button
+          class="download-action-btn primary"
+          (click)="triggerBatchDownload()"
+          [disabled]="selectedItems.length === 0"
+          type="button"
+        >
+          <span class="material-symbols-rounded">download</span>
+          <span>
+            {{ selectedItems.length === preview.items.length ? 'Download All (' + preview.items.length + ' Images)' : 'Download Selected (' + selectedItems.length + ' Images)' }}
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 3. VIDEO PREVIEW -->
+    <div *ngIf="isVideo" class="video-section">
+      <div class="media-frame video-frame">
+        <video
+          [src]="preview.items[0].media_url"
+          controls
+          playsinline
+          class="preview-video"
+          preload="metadata"
+        ></video>
+      </div>
+
+      <!-- Video Audio Options -->
+      <div class="video-options-panel">
+        <div class="options-header">
+          <span class="material-symbols-rounded">tune</span>
+          <span class="options-title">Download Options</span>
+        </div>
+
+        <div class="options-grid">
+          <!-- With Audio Option -->
+          <label class="option-card" [class.active]="videoAudioOption === 'audio'">
+            <input
+              type="radio"
+              name="audioOption"
+              value="audio"
+              [checked]="videoAudioOption === 'audio'"
+              (change)="videoAudioOption = 'audio'"
+            />
+            <div class="option-details">
+              <div class="option-title-row">
+                <span class="material-symbols-rounded opt-icon">volume_up</span>
+                <span class="opt-label">Download with Audio</span>
+              </div>
+              <span class="opt-desc">Full video stream including stereo sound track.</span>
+            </div>
+          </label>
+
+          <!-- Muted Option -->
+          <label
+            class="option-card"
+            [class.active]="videoAudioOption === 'muted'"
+            [class.disabled]="!preview.items[0].supports_muted"
+          >
+            <input
+              type="radio"
+              name="audioOption"
+              value="muted"
+              [disabled]="!preview.items[0].supports_muted"
+              [checked]="videoAudioOption === 'muted'"
+              (change)="videoAudioOption = 'muted'"
+            />
+            <div class="option-details">
+              <div class="option-title-row">
+                <span class="material-symbols-rounded opt-icon">volume_off</span>
+                <span class="opt-label">Download Muted</span>
+                <span *ngIf="!preview.items[0].supports_muted" class="unavail-pill">Unavailable</span>
+              </div>
+              <span class="opt-desc">
+                {{ preview.items[0].supports_muted ? 'Save video without audio track or with sound muted.' : 'This source stream does not offer a separate muted variant.' }}
+              </span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="download-bar">
+        <button
+          class="download-action-btn primary"
+          (click)="triggerSingleDownload(preview.items[0])"
+          type="button"
+        >
+          <span class="material-symbols-rounded">download</span>
+          <span>
+            Download Video ({{ videoAudioOption === 'muted' ? 'Muted' : 'With Audio' }})
+          </span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

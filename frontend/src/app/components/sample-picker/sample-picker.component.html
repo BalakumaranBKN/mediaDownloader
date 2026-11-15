@@ -1,0 +1,19 @@
+<div class="samples-wrapper">
+  <div class="samples-header">
+    <span class="samples-title">Quick Test Previews:</span>
+    <span class="samples-desc">Instant verified showcase posts</span>
+  </div>
+
+  <div class="samples-row">
+    <button
+      *ngFor="let s of samples"
+      class="sample-pill"
+      (click)="pick(s.url)"
+      type="button"
+    >
+      <span class="material-symbols-rounded pill-icon">{{ s.icon }}</span>
+      <span class="pill-label">{{ s.label }}</span>
+      <span class="pill-badge">{{ s.badge }}</span>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,33 @@
+<header class="app-header">
+  <div class="brand">
+    <div class="logo-icon">
+      <span class="material-symbols-rounded">cloud_download</span>
+    </div>
+    <div class="brand-text">
+      <h1 class="app-name">MediaVault</h1>
+      <div class="status-indicator" [class.connected]="apiService.isConnected()" [title]="apiService.isConnected() ? 'Backend Connected' : 'Connecting to Backend...'">
+        <span class="dot"></span>
+        <span class="status-text">{{ apiService.isConnected() ? 'Connected' : 'Offline' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="header-actions">
+    <button class="icon-button" (click)="openHistory.emit()" title="Download History" aria-label="Download History">
+      <span class="material-symbols-rounded">folder_open</span>
+      <span *ngIf="storageService.savedFiles().length > 0" class="badge-count">
+        {{ storageService.savedFiles().length }}
+      </span>
+    </button>
+
+    <button class="icon-button" (click)="toggleTheme()" [title]="themeService.isDarkMode() ? 'Switch to Light Theme' : 'Switch to Dark Theme'" aria-label="Toggle Theme">
+      <span class="material-symbols-rounded">
+        {{ themeService.isDarkMode() ? 'light_mode' : 'dark_mode' }}
+      </span>
+    </button>
+
+    <button class="icon-button" (click)="openSettings.emit()" title="Settings & Platforms" aria-label="Settings">
+      <span class="material-symbols-rounded">settings</span>
+    </button>
+  </div>
+</header>

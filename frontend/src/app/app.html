@@ -1,0 +1,93 @@
+<main class="app-container">
+  <!-- Top Navigation Header -->
+  <app-header
+    (openSettings)="showSettings.set(true)"
+    (openHistory)="showHistory.set(true)"
+  ></app-header>
+
+  <!-- Global Error or Offline Alert -->
+  <div *ngIf="errorMessage()" class="alert-box error animate-fade">
+    <div class="alert-content">
+      <span class="material-symbols-rounded alert-icon">wifi_off</span>
+      <div class="alert-text">
+        <span class="alert-title">Connection Notice</span>
+        <span class="alert-message">{{ errorMessage() }}</span>
+      </div>
+    </div>
+    <div class="alert-actions">
+      <button class="alert-btn" (click)="showSettings.set(true)" type="button">
+        Configure Backend
+      </button>
+      <button class="dismiss-alert-btn" (click)="dismissError()" type="button" aria-label="Dismiss">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- URL Input Card (with clipboard detector, paste & preview) -->
+  <app-url-input
+    [url]="currentUrl()"
+    [isLoading]="isLoadingPreview()"
+    (urlChange)="onUrlChange($event)"
+    (previewRequest)="loadPreview($event)"
+  ></app-url-input>
+
+  <!-- Quick Sample Posts Bar -->
+  <app-sample-picker
+    (selectSample)="onSelectSample($event)"
+  ></app-sample-picker>
+
+  <!-- Download Progress Tracker & Saved Files Card -->
+  <app-download-tracker
+    [jobs]="activeJobs()"
+    (dismissJob)="dismissJob($event)"
+    (retryJob)="retryJob($event)"
+  ></app-download-tracker>
+
+  <!-- Media Preview Section -->
+  <app-media-preview
+    *ngIf="previewData()"
+    [preview]="previewData()!"
+    (downloadSingle)="downloadSingleItem($event)"
+    (downloadBatch)="downloadBatchItems($event)"
+  ></app-media-preview>
+
+  <!-- Empty state when no preview loaded yet -->
+  <div *ngIf="!previewData() && !isLoadingPreview()" class="empty-guide-card">
+    <div class="guide-icon-circle">
+      <span class="material-symbols-rounded">touch_app</span>
+    </div>
+    <h3 class="guide-title">Ready to Download</h3>
+    <p class="guide-desc">
+      Paste a public post link from Instagram, X/Twitter, or a direct media URL. Or tap one of the quick test previews above.
+    </p>
+    <div class="guide-steps">
+      <div class="step-item">
+        <span class="step-num">1</span>
+        <span>Paste URL</span>
+      </div>
+      <span class="step-arrow">→</span>
+      <div class="step-item">
+        <span class="step-num">2</span>
+        <span>Preview</span>
+      </div>
+      <span class="step-arrow">→</span>
+      <div class="step-item">
+        <span class="step-num">3</span>
+        <span>Save to Gallery</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings & Platform Rules Modal -->
+  <app-settings-modal
+    *ngIf="showSettings()"
+    (close)="showSettings.set(false)"
+  ></app-settings-modal>
+
+  <!-- Storage History Sheet -->
+  <app-history-sheet
+    *ngIf="showHistory()"
+    (close)="showHistory.set(false)"
+  ></app-history-sheet>
+</main>

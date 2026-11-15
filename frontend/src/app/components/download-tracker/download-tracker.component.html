@@ -1,0 +1,83 @@
+<div *ngIf="jobs.length > 0" class="tracker-card animate-fade">
+  <div class="tracker-header">
+    <div class="header-left">
+      <span class="material-symbols-rounded header-icon">downloading</span>
+      <h3 class="header-title">Downloads & Saved Files</h3>
+    </div>
+    <span class="job-count-badge">{{ jobs.length }}</span>
+  </div>
+
+  <div class="jobs-list">
+    <div *ngFor="let job of jobs" class="job-item" [ngClass]="job.status">
+      
+      <!-- Job Info Row -->
+      <div class="job-top-row">
+        <div class="job-title-group">
+          <span class="material-symbols-rounded job-type-icon">
+            {{ job.media_type === 'video' ? 'movie' : 'image' }}
+          </span>
+          <div class="job-names">
+            <span class="job-filename" [title]="job.filename">{{ job.filename }}</span>
+            <span class="job-meta">
+              {{ job.media_type | uppercase }}
+              <span *ngIf="job.muted" class="muted-tag">• Muted</span>
+            </span>
+          </div>
+        </div>
+
+        <button class="dismiss-btn" (click)="dismissJob.emit(job.id)" type="button" title="Dismiss">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+
+      <!-- Downloading Progress Bar -->
+      <div *ngIf="job.status === 'downloading' || job.status === 'pending'" class="progress-section">
+        <div class="progress-track">
+          <div class="progress-fill" [style.width.%]="job.progress"></div>
+        </div>
+        <div class="progress-labels">
+          <span class="progress-text">Saving to MediaVault...</span>
+          <span class="progress-pct">{{ job.progress }}%</span>
+        </div>
+      </div>
+
+      <!-- Completed Success Box -->
+      <div *ngIf="job.status === 'completed'" class="success-box">
+        <div class="success-msg">
+          <span class="material-symbols-rounded check-icon">check_circle</span>
+          <div class="msg-content">
+            <span class="saved-title">Successfully Saved!</span>
+            <span class="saved-path" *ngIf="job.saved_path">{{ job.saved_path }}</span>
+          </div>
+        </div>
+
+        <div class="success-actions">
+          <button class="action-pill primary" (click)="openOrShare(job)" type="button">
+            <span class="material-symbols-rounded">share</span>
+            <span>Open / Share in Gallery</span>
+          </button>
+          <button class="action-pill secondary" (click)="copyPath(job.saved_path)" *ngIf="job.saved_path" type="button" title="Copy Storage Path">
+            <span class="material-symbols-rounded">content_copy</span>
+            <span>Path</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Failed Error Box -->
+      <div *ngIf="job.status === 'failed'" class="failed-box">
+        <div class="failed-msg">
+          <span class="material-symbols-rounded fail-icon">error</span>
+          <div class="msg-content">
+            <span class="failed-title">Download Failed</span>
+            <span class="failed-reason">{{ job.error_message || 'Network or server error' }}</span>
+          </div>
+        </div>
+        <button class="retry-btn" (click)="retryJob.emit(job)" type="button">
+          <span class="material-symbols-rounded">refresh</span>
+          <span>Retry</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

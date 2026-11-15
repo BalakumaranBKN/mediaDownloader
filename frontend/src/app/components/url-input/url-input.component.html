@@ -1,0 +1,71 @@
+<div class="url-card">
+  <!-- Smart Clipboard Banner -->
+  <div *ngIf="clipboardService.clipboardDetectedUrl()" class="clipboard-banner animate-fade">
+    <div class="banner-content">
+      <span class="material-symbols-rounded banner-icon">content_paste</span>
+      <div class="banner-text">
+        <span class="banner-title">Link found on clipboard</span>
+        <span class="banner-url">{{ clipboardService.clipboardDetectedUrl() }}</span>
+      </div>
+    </div>
+    <div class="banner-buttons">
+      <button class="banner-btn paste" (click)="pasteDetectedClipboard()" type="button">
+        Paste & Preview
+      </button>
+      <button class="banner-btn dismiss" (click)="clipboardService.dismissDetected()" type="button" aria-label="Dismiss">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="input-form">
+    <div class="input-wrapper" [class.focused]="isInputFocused">
+      <span class="material-symbols-rounded input-icon">link</span>
+      
+      <input
+        type="url"
+        class="url-field"
+        placeholder="Paste Instagram, X/Twitter, or Media URL..."
+        [value]="url"
+        (input)="onInput($any($event.target).value)"
+        (keydown.enter)="submitUrl()"
+        (focus)="isInputFocused = true"
+        (blur)="isInputFocused = false"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+      />
+
+      <button *ngIf="url" class="clear-btn" (click)="clearInput()" type="button" title="Clear">
+        <span class="material-symbols-rounded">cancel</span>
+      </button>
+
+      <button class="paste-btn" (click)="pasteFromClipboard()" type="button" title="Paste from clipboard">
+        <span class="material-symbols-rounded">content_paste</span>
+        <span class="btn-text">Paste</span>
+      </button>
+    </div>
+
+    <div class="url-meta-bar" *ngIf="url">
+      <div class="badge" [ngClass]="classification.badgeClass">
+        <span class="material-symbols-rounded badge-icon">{{ classification.icon }}</span>
+        <span>{{ classification.badgeName }}</span>
+      </div>
+      <span class="meta-note" *ngIf="classification.note">{{ classification.note }}</span>
+    </div>
+
+    <div class="action-row">
+      <button
+        class="preview-btn"
+        (click)="submitUrl()"
+        [disabled]="!url.trim() || isLoading"
+        type="button"
+      >
+        <span *ngIf="!isLoading" class="material-symbols-rounded">visibility</span>
+        <span *ngIf="isLoading" class="spinner"></span>
+        <span>{{ isLoading ? 'Checking & Loading Preview...' : 'Preview Media' }}</span>
+      </button>
+    </div>
+  </div>
+</div>
